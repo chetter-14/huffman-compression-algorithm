@@ -1,1 +1,3 @@
-# Huffman compression (and decompression) algorithm written in C++
+# Huffman compression algorithm 
+
+### Written in C++
