@@ -22,10 +22,10 @@ namespace Tree
 		void setFreq(int freq) { frequency = freq; }
 
 		Node* getLeftChild() { return leftChild; }
-		Node* setLeftChild(Node* node) { leftChild = node; }
+		void setLeftChild(Node* node) { leftChild = node; }
 
 		Node* getRightChild() { return rightChild; }
-		Node* setRightChild(Node* node) { rightChild = node; }
+		void setRightChild(Node* node) { rightChild = node; }
 
 		void display(std::ostream&);
 
