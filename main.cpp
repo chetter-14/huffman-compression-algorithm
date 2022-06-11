@@ -28,21 +28,19 @@ void make_huffman_code(PriorityQueue& priorQueue)
 	}
 }
 
-int goLeftChild(Node& node)
-{
-	int codeword = 
-}
-
-void goRightChild(Node& node)
-{
-	
-}
-
 void generate_code(Node& node)
 {
-	int codeword;
-	goLeftChild(*node.getLeftChild());
-	goRightChild(*node.getRightChild());
+	// look at https://www.programiz.com/dsa/huffman-coding
+	// and https://github.com/AshishYUO/huffman-compression/blob/master/huff.cpp 
+	// for better understanding and further advancement
+	if (node.getLeftChild())
+	{
+
+	} 
+	if (node.getRightChild())
+	{
+
+	}
 }
 
 int main()
