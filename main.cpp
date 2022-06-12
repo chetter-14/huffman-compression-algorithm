@@ -1,7 +1,8 @@
 #include <fstream>
+#include <cstdint>
 #include "PriorityQueue.h"
 
-int charsCodewords[charsTableSize];
+int charsCodewords[charsTableSize]{};
 
 
 void count_frequency(int* charsFreqsArr)
@@ -16,30 +17,63 @@ void count_frequency(int* charsFreqsArr)
 	}
 }
 
-void make_huffman_code(PriorityQueue& priorQueue)
+Node& addNodes(Node& node1, Node& node2)
+{
+	Node newNode{};
+	newNode.setFreq(node1.getFreq() + node2.getFreq());
+	newNode.setLeftChild(&node1);
+	newNode.setRightChild(&node2);
+	return newNode;
+}
+
+void make_huffman_tree(PriorityQueue& priorQueue)
 {
 	while (priorQueue.getSize() != 1)
 	{
 		Node& lowestNode1 = priorQueue.pop();
 		Node& lowestNode2 = priorQueue.pop();
 
-		Node newNode = lowestNode1 + lowestNode2;
-		priorQueue.push(newNode);
+		Node& newNode = addNodes(lowestNode2, lowestNode1);
+		priorQueue.push(&newNode);
 	}
 }
 
-void generate_code(Node& node)
+bool is_leaf(Node& node)
+{
+	return !(node.getLeftChild() || node.getRightChild());
+}
+
+void print_code(std::ostream& out, int binCodeArr[], int level)
+{
+	for (int i = 0; i < level; i++)
+		out << binCodeArr[i];
+}
+
+void generate_code(Node& node, int binCodeArr[], int count)
 {
 	// look at https://www.programiz.com/dsa/huffman-coding
 	// and https://github.com/AshishYUO/huffman-compression/blob/master/huff.cpp 
 	// for better understanding and further advancement
+
 	if (node.getLeftChild())
 	{
-
+		binCodeArr[count] = 0;
+		generate_code(*node.getLeftChild(), binCodeArr, count + 1);
 	} 
 	if (node.getRightChild())
 	{
-
+		binCodeArr[count] = 1;
+		generate_code(*node.getRightChild(), binCodeArr, count + 1);
+	}
+	if (is_leaf(node))
+	{
+		// charsCodewords[(int)node.getChar()] 
+		if (node.getFreq() != 0) 
+		{
+			std::cout << node.getChar() << " : ";
+			print_code(std::cout, binCodeArr, count);
+			std::cout << "\n";
+		}
 	}
 }
 
@@ -47,20 +81,25 @@ int main()
 {
 	int charsFreqsArr[charsTableSize]{};			// an array of characters frequencies
 	
-	count_frequency(charsFreqsArr);
+	// count_frequency(charsFreqsArr);
 
 	PriorityQueue priorQueue;
 
 	// assign values 
-	for (int i = 0; i < charsTableSize; i++)
-		priorQueue.push( Node((char)i, charsFreqsArr[i]) );
+	/*for (int i = 0; i < charsTableSize; i++)
+		priorQueue.push( Node((char)i, charsFreqsArr[i]) );*/
 
-	make_huffman_code(priorQueue);
-
-	int charsCodewords[charsTableSize]{};
-	generate_code(priorQueue.pop());
+	priorQueue.push( new Node{ 'a', 2 } );
+	priorQueue.push( new Node('n', 7) );
+	priorQueue.push( new Node('t', 4) );
 
 	priorQueue.display();
+
+	make_huffman_tree(priorQueue);
+
+	int binCodeArr[charsTableSize];					// charsTableSize - maximum height for huffman tree
+	int count = 0;
+	generate_code(priorQueue.pop(), binCodeArr, count);
 
 	return 0;
 }

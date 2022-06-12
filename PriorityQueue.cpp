@@ -1,10 +1,10 @@
 #include "PriorityQueue.h"
 
-void PriorityQueue::push(Node node)
+void PriorityQueue::push(Node* node)
 {
 	if (size == 0)
 	{
-		arr[size] = node;
+		arr[size] = *node;
 	}
 	else 
 	{
@@ -12,12 +12,12 @@ void PriorityQueue::push(Node node)
 		int in;
 		for (in = size - 1; in >= 0; in--)
 		{
-			if (arr[in].getFreq() < node.getFreq())
+			if (arr[in].getFreq() < node->getFreq())
 				arr[in + 1] = arr[in];
 			else
 				break;
 		}
-		arr[in + 1] = node;
+		arr[in + 1] = *node;
 	}
 	size++;
 }

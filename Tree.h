@@ -29,9 +29,6 @@ namespace Tree
 
 		void display(std::ostream&);
 
-		void addLeftChild(Node* node) { leftChild = node; }
-		void addRightChild(Node* node) { rightChild = node; }
-
 		Node operator+(Node& node);
 	};
 }

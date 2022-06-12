@@ -18,7 +18,7 @@ public:
 
 	int getSize() { return size; }
 
-	void push(Node);
+	void push(Node*);
 	Node& pop();
 
 	void display();
