@@ -4,7 +4,7 @@ void PriorityQueue::push(Node* node)
 {
 	if (size == 0)
 	{
-		arr[size] = *node;
+		arr[size] = node;
 	}
 	else 
 	{
@@ -12,17 +12,17 @@ void PriorityQueue::push(Node* node)
 		int in;
 		for (in = size - 1; in >= 0; in--)
 		{
-			if (arr[in].getFreq() < node->getFreq())
+			if (arr[in]->getFreq() < node->getFreq())
 				arr[in + 1] = arr[in];
 			else
 				break;
 		}
-		arr[in + 1] = *node;
+		arr[in + 1] = node;
 	}
 	size++;
 }
 
-Node& PriorityQueue::pop()
+Node* PriorityQueue::pop()
 {
 	return arr[--size];
 }
@@ -31,7 +31,7 @@ void PriorityQueue::display()
 {
 	for (int i = 0; i < size; i++)
 	{
-		arr[i].display(std::cout);
+		arr[i]->display(std::cout);
 		std::cout << "\n";
 	}
 }
