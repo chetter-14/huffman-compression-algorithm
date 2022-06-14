@@ -1,25 +1,21 @@
 #pragma once
 
-#include "Tree.h"
-
-using namespace Tree;
-
-constexpr int charsTableSize = 256;			// size of ASCII table
+#include <vector>
+#include "HuffmanNode.h"
 
 
 class PriorityQueue {
 
-	Node** arr;
-	int size;
+	std::vector<HuffmanNode*> vect;
 
 public:
-	PriorityQueue() : size{ 0 } { arr = new Node*[charsTableSize]; }
-	~PriorityQueue() { delete[] arr; }
+	PriorityQueue() { }
+	~PriorityQueue() { vect.clear(); }
 
-	int getSize() { return size; }
+	int getSize() { return vect.size(); }
 
-	void push(Node*);
-	Node* pop();
+	void push(HuffmanNode*);
+	HuffmanNode* pop();
 
 	void display();
 };

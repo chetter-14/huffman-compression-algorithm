@@ -1,102 +1,61 @@
 #include <fstream>
 #include <cstdint>
+#include <map>
+#include <queue>
+#include "HuffmanNode.h"
 #include "PriorityQueue.h"
 
-int charsCodewords[charsTableSize]{};
+
+// resource - https://web.stanford.edu/class/archive/cs/cs106b/cs106b.1176/assn/huffman.html
 
 
-void count_frequency(int* charsFreqsArr)
+std::map<int, int> buildFrequencyTable(std::istream& in)
 {
-	std::ifstream inputFile;
-	inputFile.open("input.txt");
+	std::map<int, int> frequencyTable;		// key - character, value - frequency of that character
 
 	char ch;
-	while (inputFile >> ch)
+	while (in >> ch)
 	{
-		(*(charsFreqsArr + (int)ch))++;			// increment the count of the specified character
-	}
-}
-
-Node* addNodes(Node* node1, Node* node2)
-{
-	Node* newNode = new Node{};
-	newNode->setFreq(node1->getFreq() + node2->getFreq());
-	newNode->setLeftChild(node1);
-	newNode->setRightChild(node2);
-	return newNode;
-}
-
-void make_huffman_tree(PriorityQueue& priorQueue)
-{
-	while (priorQueue.getSize() != 1)
-	{
-		Node* lowestNode1 = priorQueue.pop();
-		Node* lowestNode2 = priorQueue.pop();
-
-		Node* newNode = addNodes(lowestNode2, lowestNode1);
-		priorQueue.push(newNode);
-	}
-}
-
-bool is_leaf(Node* node)
-{
-	return !(node->getLeftChild() || node->getRightChild());
-}
-
-void print_code(std::ostream& out, int binCodeArr[], int level)
-{
-	for (int i = 0; i < level; i++)
-		out << binCodeArr[i];
-}
-
-void generate_code(Node* node, int binCodeArr[], int count)
-{
-	// look at https://www.programiz.com/dsa/huffman-coding
-	// and https://github.com/AshishYUO/huffman-compression/blob/master/huff.cpp 
-	// for better understanding and further advancement
-
-	if (node->getLeftChild())
-	{
-		binCodeArr[count] = 0;
-		generate_code(node->getLeftChild(), binCodeArr, count + 1);
-	} 
-	if (node->getRightChild())
-	{
-		binCodeArr[count] = 1;
-		generate_code(node->getRightChild(), binCodeArr, count + 1);
-	}
-	if (is_leaf(node))
-	{
-		if (node->getFreq() != 0) 
+		if (frequencyTable.count(ch))
 		{
-			std::cout << node->getChar() << " : ";
-			print_code(std::cout, binCodeArr, count);
-			std::cout << "\n";
+			frequencyTable.find(ch)->second++;
+			continue;
 		}
+		frequencyTable.insert(std::pair<int, int>(ch, 1));
 	}
+	frequencyTable.insert(std::pair<int, int>(PSEUDO_EOF, 1));
+	return frequencyTable;
 }
+
+void buildEncodingTree(std::map<int, int> freqTable)
+{
+	std::priority_queue<HuffmanNode*, std::vector<HuffmanNode*>, CmpHuffmanNodes > priorQueue;
+
+	for (const auto& it : freqTable)
+	{
+		HuffmanNode* node = new HuffmanNode(it.first, it.second);
+		priorQueue.push(node);
+	}
+	
+	while (priorQueue.size())
+	{
+		const HuffmanNode* lastNode = priorQueue.top();
+		std::cout << lastNode->getChar() << " (char) : " << lastNode->getCount() << " (count)\n";
+		priorQueue.pop();
+	} 
+}
+
 
 int main()
 {
-	int charsFreqsArr[charsTableSize]{};			// an array of characters frequencies
-	
-	count_frequency(charsFreqsArr);
+	// read a file and build characters' frequency table 
+	std::ifstream fileInput;
+	fileInput.open("input.txt");
 
-	PriorityQueue priorQueue;
+	std::map<int, int> frequencyTable = buildFrequencyTable(fileInput);
 
-	// assign values 
-	for (int i = 0; i < charsTableSize; i++)
-		priorQueue.push( new Node((char)i, charsFreqsArr[i]) );
-
-	priorQueue.display();
-
-	make_huffman_tree(priorQueue);
-
-	int binCodeArr[charsTableSize];					// charsTableSize - maximum height for huffman tree
-	int count = 0;
-	generate_code(priorQueue.pop(), binCodeArr, count);
+	buildEncodingTree(frequencyTable);
 
 	return 0;
 }
-
 
