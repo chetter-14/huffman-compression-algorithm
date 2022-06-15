@@ -7,8 +7,8 @@ constexpr int PSEUDO_EOF = 256;
 class HuffmanNode {
 	int character;					// character at this node
 	int count;						// the frequency of the character
-	HuffmanNode* leftChild;			// left huffman child node
-	HuffmanNode* rightChild;		// right huffman child node
+	const HuffmanNode* leftChild;			// left huffman child node
+	const HuffmanNode* rightChild;		// right huffman child node
 
 public:
 	HuffmanNode() : character{}, count{ 0 }, leftChild{ nullptr }, rightChild{ nullptr } { }
@@ -21,11 +21,11 @@ public:
 	int getCount() const { return count; }
 	void setCount(int c) { count = c; }
 
-	HuffmanNode* getLeftChild() const { return leftChild; }
-	void setLeftChild(HuffmanNode* node) { leftChild = node; }
+	const HuffmanNode* getLeftChild() const { return leftChild; }
+	void setLeftChild(const HuffmanNode* node) { leftChild = node; }
 
-	HuffmanNode* getRightChild() const { return rightChild; }
-	void setRightChild(HuffmanNode* node) { rightChild = node; }
+	const HuffmanNode* getRightChild() const { return rightChild; }
+	void setRightChild(const HuffmanNode* node) { rightChild = node; }
 
 	void display(std::ostream& out);
 };

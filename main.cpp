@@ -3,7 +3,6 @@
 #include <map>
 #include <queue>
 #include "HuffmanNode.h"
-#include "PriorityQueue.h"
 
 
 // resource - https://web.stanford.edu/class/archive/cs/cs106b/cs106b.1176/assn/huffman.html
@@ -27,24 +26,35 @@ std::map<int, int> buildFrequencyTable(std::istream& in)
 	return frequencyTable;
 }
 
-void buildEncodingTree(std::map<int, int> freqTable)
+HuffmanNode* buildEncodingTree(std::map<int, int> freqTable)
 {
 	std::priority_queue<HuffmanNode*, std::vector<HuffmanNode*>, CmpHuffmanNodes > priorQueue;
 
+	// fill the priority queue
 	for (const auto& it : freqTable)
 	{
 		HuffmanNode* node = new HuffmanNode(it.first, it.second);
 		priorQueue.push(node);
 	}
 	
-	while (priorQueue.size())
+	// form a huffman tree
+	while (priorQueue.size() != 1)
 	{
 		const HuffmanNode* lastNode = priorQueue.top();
-		std::cout << lastNode->getChar() << " (char) : " << lastNode->getCount() << " (count)\n";
 		priorQueue.pop();
-	} 
-}
+		const HuffmanNode* preLastNode = priorQueue.top();
+		priorQueue.pop();
 
+		HuffmanNode* newNode = new HuffmanNode();
+		newNode->setCount(lastNode->getCount() + preLastNode->getCount());
+		newNode->setLeftChild(preLastNode);
+		newNode->setRightChild(lastNode);
+
+		priorQueue.push(newNode);
+	} 
+
+	return priorQueue.top();			// return a root
+}
 
 int main()
 {
@@ -54,7 +64,10 @@ int main()
 
 	std::map<int, int> frequencyTable = buildFrequencyTable(fileInput);
 
-	buildEncodingTree(frequencyTable);
+	// make a huffman tree
+	HuffmanNode* root = buildEncodingTree(frequencyTable);
+	
+	std::cout << (char)root->getLeftChild()->getRightChild()->getChar() << " (char) : " << root->getLeftChild()->getRightChild()->getCount() << " (count)\n";
 
 	return 0;
 }
