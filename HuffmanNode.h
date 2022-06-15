@@ -12,7 +12,7 @@ class HuffmanNode {
 
 public:
 	HuffmanNode() : character{}, count{ 0 }, leftChild{ nullptr }, rightChild{ nullptr } { }
-	HuffmanNode(char c, int freq) : character{ c }, count{ freq }, leftChild{ nullptr }, rightChild{ nullptr } { }
+	HuffmanNode(int c, int freq) : character{ c }, count{ freq }, leftChild{ nullptr }, rightChild{ nullptr } { }
 	~HuffmanNode() {}
 
 	int getChar() const { return character; }

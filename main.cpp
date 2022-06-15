@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <map>
 #include <queue>
+#include <string>
 #include "HuffmanNode.h"
 
 
@@ -42,6 +43,7 @@ HuffmanNode* buildEncodingTree(std::map<int, int> freqTable)
 	{
 		const HuffmanNode* lastNode = priorQueue.top();
 		priorQueue.pop();
+
 		const HuffmanNode* preLastNode = priorQueue.top();
 		priorQueue.pop();
 
@@ -56,6 +58,32 @@ HuffmanNode* buildEncodingTree(std::map<int, int> freqTable)
 	return priorQueue.top();			// return a root
 }
 
+bool isLeaf(const HuffmanNode* node)
+{
+	return !(node->getLeftChild() || node->getRightChild());
+}
+
+std::map<int, std::string> buildEncodingMap(const HuffmanNode* node, std::string code)
+{
+	std::map<int, std::string> encodingMap;			// key - character, value - its huffman code
+	// std::cout << "Node count - " << node->getCount() << "\n";
+
+	if (node->getLeftChild())
+	{
+		buildEncodingMap(node->getLeftChild(), code + "0");
+	}
+	if (node->getRightChild())
+	{
+		buildEncodingMap(node->getRightChild(), code + "1");
+	}
+	if (isLeaf(node))
+	{
+		encodingMap.insert(std::pair<int, std::string>(node->getChar(), code));
+		std::cout << node->getChar() << " (char) : " << code << " (code)\n";
+	}
+	return encodingMap;
+}
+
 int main()
 {
 	// read a file and build characters' frequency table 
@@ -66,8 +94,13 @@ int main()
 
 	// make a huffman tree
 	HuffmanNode* root = buildEncodingTree(frequencyTable);
-	
-	std::cout << (char)root->getLeftChild()->getRightChild()->getChar() << " (char) : " << root->getLeftChild()->getRightChild()->getCount() << " (count)\n";
+		
+	std::map<int, std::string> encodingMap = buildEncodingMap(root, "");
+
+	for (const auto& it : encodingMap)
+	{
+		std::cout << it.first << " (char) : " << it.second << " (code)\n";
+	}
 
 	return 0;
 }
