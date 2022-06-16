@@ -4,6 +4,7 @@
 #include <queue>
 #include <string>
 #include <cstdint>
+#include <bitset>
 #include "HuffmanNode.h"
 
 
@@ -105,13 +106,13 @@ void encodeData(std::istream& in, const std::map<int, std::string>& encodingMap,
 			bitCount++;
 			if (bitCount == BITS_IN_BYTE)
 			{
-				out << currByte;
+				std::cout << std::bitset<8>(currByte) << "\n";
+				out << (char)currByte;
 				currByte = 0;
 				bitCount = 0;
 			}
 		}
 	}
-
 	charCode = encodingMap.find(PSEUDO_EOF)->second;
 	for (int i = 0; i < charCode.size(); i++)
 	{
@@ -120,7 +121,8 @@ void encodeData(std::istream& in, const std::map<int, std::string>& encodingMap,
 		bitCount++;
 		if (bitCount == BITS_IN_BYTE)
 		{
-			out << currByte;
+			std::cout << std::bitset<8>(currByte) << "\n";
+			out << (char)currByte;
 			currByte = 0;
 			bitCount = 0;
 		}
@@ -128,7 +130,8 @@ void encodeData(std::istream& in, const std::map<int, std::string>& encodingMap,
 	if (int bitsLeft = BITS_IN_BYTE - bitCount)
 	{
 		currByte = currByte << bitsLeft;
-		out << currByte;
+		std::cout << std::bitset<8>(currByte) << "\n";
+		out << (char)currByte;
 	}
 }
 
@@ -146,15 +149,12 @@ int main()
 	// make huffman codes for each character
 	std::map<int, std::string> encodingMap = buildEncodingMap(root);
 
-	for (const auto& it : encodingMap)
-	{
-		std::cout << it.first << " (char) : " << it.second << " (code)\n";
-	}
-
 	// write to compressed file (with huffman codes)
 	std::ofstream resultFile;
 	resultFile.open("output.txt");
-	// encodeData(fileToCompress, encodingMap, resultFile);
+	fileToCompress.clear();
+	fileToCompress.seekg(0, std::ios::beg);
+	encodeData(fileToCompress, encodingMap, resultFile);
 
 	return 0;
 }
