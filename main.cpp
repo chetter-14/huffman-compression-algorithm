@@ -3,6 +3,7 @@
 #include <map>
 #include <queue>
 #include <string>
+#include <cstdint>
 #include "HuffmanNode.h"
 
 
@@ -66,7 +67,6 @@ bool isLeaf(const HuffmanNode* node)
 std::map<int, std::string> buildEncodingMap(const HuffmanNode* node, std::string code)
 {
 	std::map<int, std::string> encodingMap;			// key - character, value - its huffman code
-	// std::cout << "Node count - " << node->getCount() << "\n";
 
 	if (node->getLeftChild())
 	{
@@ -79,28 +79,78 @@ std::map<int, std::string> buildEncodingMap(const HuffmanNode* node, std::string
 	if (isLeaf(node))
 	{
 		encodingMap.insert(std::pair<int, std::string>(node->getChar(), code));
-		std::cout << node->getChar() << " (char) : " << code << " (code)\n";
 	}
-	return encodingMap;
+	if (node->)
+}
+
+void encodeData(std::istream& in, const std::map<int, std::string>& encodingMap, std::ostream& out)
+{
+	int currByte = 0;
+	int bitCount = 0;
+	std::string charCode;
+
+	// read char by char and write them into output file in bits
+	char ch;
+	while (in >> ch)
+	{
+		charCode = encodingMap.find((int)ch)->second;
+		for (int i = 0; i < charCode.size(); i++)
+		{
+			int bit = charCode.at(i) - '0';
+			currByte = currByte << 1 | bit;
+			bitCount++;
+			if (bitCount == BITS_IN_BYTE)
+			{
+				out << currByte;
+				currByte = 0;
+				bitCount = 0;
+			}
+		}
+	}
+
+	charCode = encodingMap.find(PSEUDO_EOF)->second;
+	for (int i = 0; i < charCode.size(); i++)
+	{
+		int bit = charCode.at(i) - '0';
+		currByte = currByte << 1 | bit;
+		bitCount++;
+		if (bitCount == BITS_IN_BYTE)
+		{
+			out << currByte;
+			currByte = 0;
+			bitCount = 0;
+		}
+	}
+	if (int bitsLeft = BITS_IN_BYTE - bitCount)
+	{
+		currByte = currByte << bitsLeft;
+		out << currByte;
+	}
 }
 
 int main()
 {
 	// read a file and build characters' frequency table 
-	std::ifstream fileInput;
-	fileInput.open("input.txt");
+	std::ifstream fileToCompress;
+	fileToCompress.open("input.txt");
 
-	std::map<int, int> frequencyTable = buildFrequencyTable(fileInput);
+	std::map<int, int> frequencyTable = buildFrequencyTable(fileToCompress);
 
 	// make a huffman tree
 	HuffmanNode* root = buildEncodingTree(frequencyTable);
 		
+	// make huffman codes for each character
 	std::map<int, std::string> encodingMap = buildEncodingMap(root, "");
 
 	for (const auto& it : encodingMap)
 	{
 		std::cout << it.first << " (char) : " << it.second << " (code)\n";
 	}
+
+	// write to compressed file (with huffman codes)
+	std::ofstream resultFile;
+	resultFile.open("output.txt");
+	// encodeData(fileToCompress, encodingMap, resultFile);
 
 	return 0;
 }
