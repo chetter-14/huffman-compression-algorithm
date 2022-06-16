@@ -64,23 +64,27 @@ bool isLeaf(const HuffmanNode* node)
 	return !(node->getLeftChild() || node->getRightChild());
 }
 
-std::map<int, std::string> buildEncodingMap(const HuffmanNode* node, std::string code)
+void traverseTree(const HuffmanNode* node, std::string code, std::map< int, std::string>& encodingMap)
 {
-	std::map<int, std::string> encodingMap;			// key - character, value - its huffman code
-
 	if (node->getLeftChild())
 	{
-		buildEncodingMap(node->getLeftChild(), code + "0");
+		traverseTree(node->getLeftChild(), code + "0", encodingMap);
 	}
 	if (node->getRightChild())
 	{
-		buildEncodingMap(node->getRightChild(), code + "1");
+		traverseTree(node->getRightChild(), code + "1", encodingMap);
 	}
 	if (isLeaf(node))
 	{
 		encodingMap.insert(std::pair<int, std::string>(node->getChar(), code));
 	}
-	if (node->)
+}
+
+std::map<int, std::string> buildEncodingMap(const HuffmanNode* root)
+{
+	std::map<int, std::string> encodingMap;			// key - character, value - its huffman code
+	traverseTree(root, "", encodingMap);
+	return encodingMap;
 }
 
 void encodeData(std::istream& in, const std::map<int, std::string>& encodingMap, std::ostream& out)
@@ -140,7 +144,7 @@ int main()
 	HuffmanNode* root = buildEncodingTree(frequencyTable);
 		
 	// make huffman codes for each character
-	std::map<int, std::string> encodingMap = buildEncodingMap(root, "");
+	std::map<int, std::string> encodingMap = buildEncodingMap(root);
 
 	for (const auto& it : encodingMap)
 	{

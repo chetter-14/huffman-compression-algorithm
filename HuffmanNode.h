@@ -9,7 +9,7 @@ class HuffmanNode {
 	int character;					// character at this node
 	int count;						// the frequency of the character
 	const HuffmanNode* leftChild;			// left huffman child node
-	const HuffmanNode* rightChild;		// right huffman child node
+	const HuffmanNode* rightChild;			// right huffman child node
 
 public:
 	HuffmanNode() : character{}, count{ 0 }, leftChild{ nullptr }, rightChild{ nullptr } { }
@@ -27,8 +27,6 @@ public:
 
 	const HuffmanNode* getRightChild() const { return rightChild; }
 	void setRightChild(const HuffmanNode* node) { rightChild = node; }
-
-	void display(std::ostream& out);
 };
 
 
