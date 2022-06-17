@@ -15,9 +15,11 @@ std::map<int, int> buildFrequencyTable(std::istream& in)
 {
 	std::map<int, int> frequencyTable;		// key - character, value - frequency of that character
 
+	int charsCount = 0;
 	char ch;
 	while (in >> ch)
 	{
+		charsCount++;
 		if (frequencyTable.count(ch))
 		{
 			frequencyTable.find(ch)->second++;
@@ -26,6 +28,7 @@ std::map<int, int> buildFrequencyTable(std::istream& in)
 		frequencyTable.insert(std::pair<int, int>(ch, 1));
 	}
 	frequencyTable.insert(std::pair<int, int>(PSEUDO_EOF, 1));
+	std::cout << "The total number of symbols : " << charsCount << "\n";
 	return frequencyTable;
 }
 
@@ -94,11 +97,15 @@ void encodeData(std::istream& in, const std::map<int, std::string>& encodingMap,
 	int bitCount = 0;
 	std::string charCode;
 
+	int charsAmount = 0;
+
 	// read char by char and write them into output file in bits
 	char ch;
 	while (in >> ch)
 	{
+		charsAmount++;
 		charCode = encodingMap.find((int)ch)->second;
+		std::cout << ch << " (char) : " << charCode << " (code)\n";
 		for (int i = 0; i < charCode.size(); i++)
 		{
 			int bit = charCode.at(i) - '0';
@@ -106,7 +113,6 @@ void encodeData(std::istream& in, const std::map<int, std::string>& encodingMap,
 			bitCount++;
 			if (bitCount == BITS_IN_BYTE)
 			{
-				std::cout << std::bitset<8>(currByte) << "\n";
 				out << (char)currByte;
 				currByte = 0;
 				bitCount = 0;
@@ -117,11 +123,10 @@ void encodeData(std::istream& in, const std::map<int, std::string>& encodingMap,
 	for (int i = 0; i < charCode.size(); i++)
 	{
 		int bit = charCode.at(i) - '0';
-		currByte = currByte << 1 | bit;
+		currByte = (currByte << 1) | bit;
 		bitCount++;
 		if (bitCount == BITS_IN_BYTE)
 		{
-			std::cout << std::bitset<8>(currByte) << "\n";
 			out << (char)currByte;
 			currByte = 0;
 			bitCount = 0;
@@ -130,8 +135,47 @@ void encodeData(std::istream& in, const std::map<int, std::string>& encodingMap,
 	if (int bitsLeft = BITS_IN_BYTE - bitCount)
 	{
 		currByte = currByte << bitsLeft;
-		std::cout << std::bitset<8>(currByte) << "\n";
 		out << (char)currByte;
+	}
+	std::cout << "The total number of chars (in encoding file) : " << charsAmount + 1 << "\n";
+}
+
+void decodeData(std::istream& in, const HuffmanNode* root, std::ostream& out)
+{
+	char byte;
+	const HuffmanNode* node = root;
+
+	int charsAmount = 0;
+
+	while (in.read((char*)&byte, 1))
+	{
+		std::cout << std::bitset<8>(byte) << "\n";
+		for (int i = BITS_IN_BYTE - 1; i >= 0; i--)
+		{
+			int bit = (byte >> i) & 0x1;
+			if (bit)
+			{
+				node = node->getRightChild();
+			}
+			else
+			{
+				node = node->getLeftChild();
+			}
+
+			int ch = node->getChar();
+			if (ch)
+			{
+				std::cout << (char)ch << "\n";
+				if (ch == PSEUDO_EOF)
+				{
+					std::cout << "The total number of chars (in decoding file) : " << charsAmount << "\n";
+					return;
+				}
+				charsAmount++;
+				out << (char)ch;
+				node = root;
+			}
+		}
 	}
 }
 
@@ -139,7 +183,8 @@ int main()
 {
 	// read a file and build characters' frequency table 
 	std::ifstream fileToCompress;
-	fileToCompress.open("input.txt");
+	fileToCompress.open("input.txt", std::ios_base::binary);
+	fileToCompress.unsetf(std::ios_base::skipws);
 
 	std::map<int, int> frequencyTable = buildFrequencyTable(fileToCompress);
 
@@ -150,11 +195,27 @@ int main()
 	std::map<int, std::string> encodingMap = buildEncodingMap(root);
 
 	// write to compressed file (with huffman codes)
-	std::ofstream resultFile;
-	resultFile.open("output.txt");
+	std::ofstream compressedFileToWrite;
+	compressedFileToWrite.open("compressed.txt", std::ios_base::binary);
+	// compressedFileToWrite.unsetf(std::ios_base::skipws);
 	fileToCompress.clear();
 	fileToCompress.seekg(0, std::ios::beg);
-	encodeData(fileToCompress, encodingMap, resultFile);
+	
+	encodeData(fileToCompress, encodingMap, compressedFileToWrite);
+	compressedFileToWrite.close();
+	fileToCompress.close();
+
+	// read from compressed file, translate to normal format and write to new file (decompress)
+	std::ofstream decompressedFile;
+	decompressedFile.open("decompressed.txt", std::ios_base::binary);
+	decompressedFile.unsetf(std::ios_base::skipws);
+
+	std::ifstream compressedFileToRead;
+	compressedFileToRead.open("compressed.txt", std::ios_base::binary);
+
+	decodeData(compressedFileToRead, root, decompressedFile);
+	decompressedFile.close();
+	compressedFileToRead.close();
 
 	return 0;
 }
