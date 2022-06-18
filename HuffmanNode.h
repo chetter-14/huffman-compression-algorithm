@@ -3,7 +3,6 @@
 #include <iostream>
 
 constexpr int PSEUDO_EOF = 256;
-constexpr int BITS_IN_BYTE = 8;
 
 class HuffmanNode {
 	int character;					// character at this node

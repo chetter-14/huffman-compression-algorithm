@@ -1,10 +1,10 @@
 #include <fstream>
-#include <cstdint>
 #include <map>
 #include <queue>
 #include <string>
 #include <bitset>
 #include "HuffmanNode.h"
+#include "ofbitstream.h"
 
 
 // resource - https://web.stanford.edu/class/archive/cs/cs106b/cs106b.1176/assn/huffman.html
@@ -13,12 +13,9 @@
 std::map<int, int> buildFrequencyTable(std::istream& in)
 {
 	std::map<int, int> frequencyTable;		// key - character, value - frequency of that character
-
-	int charsCount = 0;
 	char ch;
 	while (in >> ch)
 	{
-		charsCount++;
 		if (frequencyTable.count(ch))
 		{
 			frequencyTable.find(ch)->second++;
@@ -32,7 +29,7 @@ std::map<int, int> buildFrequencyTable(std::istream& in)
 
 HuffmanNode* buildEncodingTree(std::map<int, int> freqTable)
 {
-	std::priority_queue<HuffmanNode*, std::vector<HuffmanNode*>, CmpHuffmanNodes > priorQueue;
+	std::priority_queue<HuffmanNode*, std::vector<HuffmanNode*>, CmpHuffmanNodes> priorQueue;
 
 	// fill the priority queue
 	for (const auto& it : freqTable)
@@ -95,62 +92,30 @@ void writeFrequencyTable(std::ofstream& out, std::map<int, int>& freqTable)
 	for (std::map<int,int>::iterator iter = freqTable.begin(); iter != freqTable.end(); iter++)
 	{
 		out << std::to_string(iter->first) << ':' << std::to_string(iter->second);
-		if (iter != --freqTable.end())
-		{
+
+		if (iter != --freqTable.end())			// if not the last key-value pair in the map
 			out << ',';
-		}
 	}
 	out << '}';
 }
 
 void encodeData(std::istream& in, const std::map<int, std::string>& encodingMap, std::ostream& out)
 {
-	int currByte = 0;
-	int bitCount = 0;
 	std::string charCode;
-
-	int charsAmount = 0;
+	ofbitstream fileOutput{ out };
 
 	// read char by char and write them into output file in bits
 	char ch;
-
-
 	while (in >> ch)
 	{
-		charsAmount++;
 		charCode = encodingMap.find((int)ch)->second;
-		std::cout << ch << " (char) : " << charCode << " (code)\n";
-		for (int i = 0; i < charCode.size(); i++)
-		{
-			int bit = charCode.at(i) - '0';
-			currByte = currByte << 1 | bit;
-			bitCount++;
-			if (bitCount == BITS_IN_BYTE)
-			{
-				out << (char)currByte;
-				currByte = 0;
-				bitCount = 0;
-			}
-		}
+		fileOutput.writeHuffmanCode(charCode);
 	}
+
 	charCode = encodingMap.find(PSEUDO_EOF)->second;
-	for (int i = 0; i < charCode.size(); i++)
-	{
-		int bit = charCode.at(i) - '0';
-		currByte = (currByte << 1) | bit;
-		bitCount++;
-		if (bitCount == BITS_IN_BYTE)
-		{
-			out << (char)currByte;
-			currByte = 0;
-			bitCount = 0;
-		}
-	}
-	if (int bitsLeft = BITS_IN_BYTE - bitCount)
-	{
-		currByte = currByte << bitsLeft;
-		out << (char)currByte;
-	}
+	fileOutput.writeHuffmanCode(charCode);
+
+	fileOutput.writeLeftBits();		// if any bits are left (not full up to the byte) then fill the byte with zeros and write it
 }
 
 std::map<int, int> readFrequencyTable(std::ifstream& in)
@@ -206,11 +171,8 @@ void decodeData(std::istream& in, const HuffmanNode* root, std::ostream& out)
 	char byte;
 	const HuffmanNode* node = root;
 
-	int charsAmount = 0;
-
 	while (in.read((char*)&byte, 1))
 	{
-		std::cout << std::bitset<8>(byte) << "\n";
 		for (int i = BITS_IN_BYTE - 1; i >= 0; i--)
 		{
 			int bit = (byte >> i) & 0x1;
@@ -226,11 +188,9 @@ void decodeData(std::istream& in, const HuffmanNode* root, std::ostream& out)
 			int ch = node->getChar();
 			if (ch)
 			{
-				std::cout << (char)ch << "\n";
 				if (ch == PSEUDO_EOF)
 					return;
 
-				charsAmount++;
 				out << (char)ch;
 				node = root;
 			}
@@ -242,30 +202,39 @@ void compress(std::ifstream& in, std::ofstream& out)
 {
 	// make a frequency table
 	std::map<int, int> frequencyTable = buildFrequencyTable(in);
+	std::cout << "\tMade a frequency table.\n";
 	// make a huffman tree
 	HuffmanNode* root = buildEncodingTree(frequencyTable);
+	std::cout << "\tBuilt an encoding tree (huffman tree).\n";
 	// make huffman codes for each character
 	std::map<int, std::string> encodingMap = buildEncodingMap(root);
+	std::cout << "\tBuilt an encoding map (chars with appropriate codes).\n";
 	// write to compressed file (with huffman codes
 	in.clear();
 	in.seekg(0, std::ios::beg);
 
 	writeFrequencyTable(out, frequencyTable);
 	encodeData(in, encodingMap, out);
+	std::cout << "\tWrote codes to file.\n";
 }
 
 void decompress(std::ifstream& in, std::ofstream& out)
 {
 	// read a frequency table from compressed file
 	std::map<int, int> frequencyTable = readFrequencyTable(in);
+	std::cout << "\tRead a frequency table from file header.\n";
 	// build a tree based on that freq table
 	HuffmanNode* root = buildEncodingTree(frequencyTable);
+	std::cout << "\tBuilt an encoding tree (huffman tree).\n";
 	decodeData(in, root, out);
+	std::cout << "\tRead compressed file data, wrote to a new one in a 'readable' format.\n";
 }
 
 int main()
 {
 	// FILE COMPRESSION 
+	std::cout << "Begin compression!\n";
+
 	std::ifstream fileToCompress;
 	fileToCompress.open("input.txt", std::ios_base::binary);
 	fileToCompress.unsetf(std::ios_base::skipws);
@@ -274,11 +243,14 @@ int main()
 	resultFile.open("compressed.huf", std::ios_base::binary);
 
 	compress(fileToCompress, resultFile);
-
 	resultFile.close();
 	fileToCompress.close();
 
+	std::cout << "Compression is done!\n\n";
+
 	// FILE DECOMPRESSION
+	std::cout << "Begin decompression!\n";
+
 	std::ifstream compressedFile;
 	compressedFile.open("compressed.huf", std::ios_base::binary);
 
@@ -290,6 +262,8 @@ int main()
 	
 	decompressedFile.close();
 	compressedFile.close();
+
+	std::cout << "Decompression is done!\n";
 
 	return 0;
 }
