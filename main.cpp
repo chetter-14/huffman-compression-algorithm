@@ -9,7 +9,6 @@
 
 // resource - https://web.stanford.edu/class/archive/cs/cs106b/cs106b.1176/assn/huffman.html
 
-
 std::map<int, int> buildFrequencyTable(std::istream& in)
 {
 	std::map<int, int> frequencyTable;		// key - character, value - frequency of that character
