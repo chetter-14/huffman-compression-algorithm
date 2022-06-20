@@ -4,9 +4,9 @@
 #ifndef OFBITSTREAM_H
 #define OFBITSTREAM_H
 
+#include "utils.h"
 #include <iostream>
 
-constexpr int BITS_IN_BYTE = 8;
 
 class ofbitstream {
 

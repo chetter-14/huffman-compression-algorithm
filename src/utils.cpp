@@ -48,3 +48,14 @@ HuffmanNode* buildEncodingTree(std::map<int, int> freqTable)
 
 	return priorQueue.top();			// return a root
 }
+
+void freeTree(const HuffmanNode* node)
+{
+	if (node->getLeftChild())
+		freeTree(node->getLeftChild());
+
+	if (node->getRightChild())
+		freeTree(node->getRightChild());
+
+	node->~HuffmanNode();
+}
