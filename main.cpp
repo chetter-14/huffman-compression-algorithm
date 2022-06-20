@@ -12,7 +12,7 @@
 std::map<int, int> buildFrequencyTable(std::istream& in)
 {
 	std::map<int, int> frequencyTable;		// key - character, value - frequency of that character
-	char ch;
+	unsigned char ch;
 	while (in >> ch)
 	{
 		if (frequencyTable.count(ch))
@@ -36,7 +36,7 @@ HuffmanNode* buildEncodingTree(std::map<int, int> freqTable)
 		HuffmanNode* node = new HuffmanNode(it.first, it.second);
 		priorQueue.push(node);
 	}
-	
+
 	// form a huffman tree
 	while (priorQueue.size() != 1)
 	{
@@ -104,7 +104,7 @@ void encodeData(std::istream& in, const std::map<int, std::string>& encodingMap,
 	ofbitstream fileOutput{ out };
 
 	// read char by char and write them into output file in bits
-	char ch;
+	unsigned char ch;
 	while (in >> ch)
 	{
 		charCode = encodingMap.find((int)ch)->second;
@@ -125,7 +125,7 @@ std::map<int, int> readFrequencyTable(std::ifstream& in)
 	bool isKey = true, isValue = false;		// isKey - true because the map begins with the key
 	std::string key, value;
 
-	char ch;
+	unsigned char ch;
 	while (in.read((char*)&ch, 1))
 	{
 		switch (ch)
@@ -167,8 +167,10 @@ std::map<int, int> readFrequencyTable(std::ifstream& in)
 
 void decodeData(std::istream& in, const HuffmanNode* root, std::ostream& out)
 {
-	char byte;
+	unsigned char byte;
 	const HuffmanNode* node = root;
+
+	int charsRead = 0;
 
 	while (in.read((char*)&byte, 1))
 	{
@@ -176,25 +178,32 @@ void decodeData(std::istream& in, const HuffmanNode* root, std::ostream& out)
 		{
 			int bit = (byte >> i) & 0x1;
 			if (bit)
-			{
 				node = node->getRightChild();
-			}
 			else
-			{
 				node = node->getLeftChild();
-			}
 
 			int ch = node->getChar();
-			if (ch)
+			if (node->doesHasChar())
 			{
 				if (ch == PSEUDO_EOF)
 					return;
 
-				out << (char)ch;
+				out << (unsigned char)ch;
 				node = root;
 			}
 		}
 	}
+}
+
+void freeTree(const HuffmanNode* node)
+{
+	if (node->getLeftChild())
+		freeTree(node->getLeftChild());
+
+	if (node->getRightChild())
+		freeTree(node->getRightChild());
+
+	node->~HuffmanNode();
 }
 
 void compress(std::ifstream& in, std::ofstream& out)
@@ -202,12 +211,15 @@ void compress(std::ifstream& in, std::ofstream& out)
 	// make a frequency table
 	std::map<int, int> frequencyTable = buildFrequencyTable(in);
 	std::cout << "\tMade a frequency table.\n";
+
 	// make a huffman tree
 	HuffmanNode* root = buildEncodingTree(frequencyTable);
 	std::cout << "\tBuilt an encoding tree (huffman tree).\n";
+
 	// make huffman codes for each character
 	std::map<int, std::string> encodingMap = buildEncodingMap(root);
 	std::cout << "\tBuilt an encoding map (chars with appropriate codes).\n";
+
 	// write to compressed file (with huffman codes
 	in.clear();
 	in.seekg(0, std::ios::beg);
@@ -215,6 +227,8 @@ void compress(std::ifstream& in, std::ofstream& out)
 	writeFrequencyTable(out, frequencyTable);
 	encodeData(in, encodingMap, out);
 	std::cout << "\tWrote codes to file.\n";
+
+	freeTree(root);
 }
 
 void decompress(std::ifstream& in, std::ofstream& out)
@@ -222,11 +236,14 @@ void decompress(std::ifstream& in, std::ofstream& out)
 	// read a frequency table from compressed file
 	std::map<int, int> frequencyTable = readFrequencyTable(in);
 	std::cout << "\tRead a frequency table from file header.\n";
+
 	// build a tree based on that freq table
 	HuffmanNode* root = buildEncodingTree(frequencyTable);
 	std::cout << "\tBuilt an encoding tree (huffman tree).\n";
 	decodeData(in, root, out);
 	std::cout << "\tRead compressed file data, wrote to a new one in a 'readable' format.\n";
+
+	freeTree(root);
 }
 
 int main()
@@ -235,7 +252,7 @@ int main()
 	std::cout << "Begin compression!\n";
 
 	std::ifstream fileToCompress;
-	fileToCompress.open("input.txt", std::ios_base::binary);
+	fileToCompress.open("Raschyotnye_raboty_Zhuravkov (1).lyx", std::ios_base::binary);
 	fileToCompress.unsetf(std::ios_base::skipws);
 
 	std::ofstream resultFile;
@@ -254,7 +271,7 @@ int main()
 	compressedFile.open("compressed.huf", std::ios_base::binary);
 
 	std::ofstream decompressedFile;
-	decompressedFile.open("decompressed.txt", std::ios_base::binary);
+	decompressedFile.open("decompressedLyxVlad.lyx", std::ios_base::binary);
 	decompressedFile.unsetf(std::ios_base::skipws);
 
 	decompress(compressedFile, decompressedFile);

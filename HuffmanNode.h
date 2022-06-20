@@ -9,10 +9,11 @@ class HuffmanNode {
 	int count;						// the frequency of the character
 	const HuffmanNode* leftChild;			// left huffman child node
 	const HuffmanNode* rightChild;			// right huffman child node
+	bool hasChar;
 
 public:
-	HuffmanNode() : character{}, count{ 0 }, leftChild{ nullptr }, rightChild{ nullptr } { }
-	HuffmanNode(int c, int freq) : character{ c }, count{ freq }, leftChild{ nullptr }, rightChild{ nullptr } { }
+	HuffmanNode() : character{}, count{ 0 }, leftChild{ nullptr }, rightChild{ nullptr }, hasChar{ false } { }
+	HuffmanNode(int c, int freq) : character{ c }, count{ freq }, leftChild{ nullptr }, rightChild{ nullptr }, hasChar{ true } { }
 	~HuffmanNode() {}
 
 	int getChar() const { return character; }
@@ -26,6 +27,9 @@ public:
 
 	const HuffmanNode* getRightChild() const { return rightChild; }
 	void setRightChild(const HuffmanNode* node) { rightChild = node; }
+
+	bool doesHasChar() const { return hasChar; }
+	void setHasChar(bool flag) { hasChar = flag; }
 };
 
 
