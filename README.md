@@ -5,6 +5,15 @@
 It is a project for compressing and decompressing files with Huffman algorithm. To get a brief insight on what Huffman algorithm is 
 you can watch this [video](https://www.youtube.com/watch?v=JsTptu56GM8). 
 
+## Information to the user
+
+The compressed file always have the `.huf` extension. 
+
+The user should only specify 2 things:
+- The file name to be compressed (with extension!), i.e. `fileToCompress.docx`
+- The file name user wants to get on the output (with extension as well and this extension should be exactly the same as with the file 
+being compressed), i.e. `decomressedFile.docx`
+
 ## Details on implementation
 
 There are 5 main steps in the execution algorithm of this program:
@@ -16,7 +25,7 @@ the result (compressed) file.
 	- Important note, at first we write a frequency table into the compressed file in order to be able to read
 	the file content the next time (maybe we just want to decompress a file and in such a situation we don't have any encoding maps, 
 	trees, etc. So here we use the frequency table in a file header).
-5. (Optional one) Reading the compressed file: 
+5. (Optional one) Decompressing the compressed file: 
 	- Read a frequency table from the file header.
 	- Build an encoding map from the frequency table (steps 2-3).
 	- Using the encoding map read data from the compressed file and write corresponding characters to the result file (decompressed one).
