@@ -12,7 +12,7 @@ int main()
 	std::cout << "Begin compression!\n";
 
 	std::ifstream fileToCompress;
-	fileToCompress.open("A_Tour_of_C_Second_Edition_2018_Stroustrup_B.pdf", std::ios_base::binary);	// here we specify the file to be compressed
+	fileToCompress.open("FILE YOU WANT TO COMPRESS HERE.ext", std::ios_base::binary);
 	fileToCompress.unsetf(std::ios_base::skipws);
 
 	std::ofstream resultFile;
@@ -31,7 +31,7 @@ int main()
 	compressedFile.open("compressed.huf", std::ios_base::binary);
 
 	std::ofstream decompressedFile;
-	decompressedFile.open("decompressed.pdf", std::ios_base::binary);
+	decompressedFile.open("NAME OF THE DECOMPRESSED FILE YOU WANT TO HAVE.ext", std::ios_base::binary);
 	decompressedFile.unsetf(std::ios_base::skipws);
 
 	decompress(compressedFile, decompressedFile);
