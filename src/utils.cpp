@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <queue>
 
 
 std::map<int, int> buildFrequencyTable(std::istream& in)

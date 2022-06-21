@@ -1,10 +1,9 @@
-#ifndef _UTILS_H
-#define _UTILS_H
+#ifndef UTILS_H
+#define UTILS_H
 
+#include "HuffmanNode.h"
 #include <map>
 #include <fstream>
-#include <queue>
-#include "HuffmanNode.h"
 
 constexpr int BITS_IN_BYTE = 8;
 

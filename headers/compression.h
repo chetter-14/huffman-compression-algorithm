@@ -1,7 +1,7 @@
-#ifndef _COMPRESSION_H_
-#define _COMPRESSION_H_
+#ifndef COMPRESSION_H
+#define COMPRESSION_H
 
-#include "utils.h"
+#include <fstream>
 
 void compress(std::ifstream& in, std::ofstream& out);
 

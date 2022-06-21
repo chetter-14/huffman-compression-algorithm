@@ -4,9 +4,8 @@
 #ifndef OFBITSTREAM_H
 #define OFBITSTREAM_H
 
-#include "utils.h"
 #include <iostream>
-
+#include <string>
 
 class ofbitstream {
 

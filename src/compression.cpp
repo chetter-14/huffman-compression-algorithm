@@ -1,6 +1,9 @@
 #include "compression.h"
+#include "HuffmanNode.h"
+#include "utils.h"
 #include "ofbitstream.h"
 #include <string>
+#include <map>
 
 
 bool isLeaf(const HuffmanNode* node)

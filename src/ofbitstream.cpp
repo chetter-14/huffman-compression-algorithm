@@ -1,4 +1,5 @@
 #include "ofbitstream.h"
+#include "utils.h"
 
 
 void ofbitstream::writeHuffmanCode(const std::string& charCode)

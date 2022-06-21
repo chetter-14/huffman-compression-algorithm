@@ -1,6 +1,5 @@
-#pragma once
-
-#include <iostream>
+#ifndef HUFFMANNODE_H
+#define HUFFMANNODE_H
 
 constexpr int PSEUDO_EOF = 256;
 
@@ -40,3 +39,5 @@ struct CmpHuffmanNodes
 		return lhs->getCount() > rhs->getCount();
 	}
 };
+
+#endif
